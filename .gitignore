@@ -7,3 +7,6 @@
 # Generated files
 backend/node_modules/
 backend/dist/
+
+# Uploaded user photos
+backend/public/uploads/

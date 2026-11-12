@@ -1,6 +1,12 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import {
+  Controller, Get, Post, Body, Param, Put, Delete,
+  UseGuards, ParseIntPipe, HttpCode, HttpStatus,
+} from '@nestjs/common';
 import { CarsService } from './cars.service';
 import { Car } from './car.entity';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateCarDto } from './dto/create-car.dto';
+import { UpdateCarDto } from './dto/update-car.dto';
 
 @Controller('cars')
 export class CarsController {
@@ -17,22 +23,29 @@ export class CarsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Car | null>{
-    return this.carsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Car | null> {
+    return this.carsService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() car: Partial<Car>): Promise<Car> {
-    return this.carsService.create(car);
+  create(@Body() dto: CreateCarDto): Promise<Car> {
+    return this.carsService.create(dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() car: Partial<Car>): Promise<Car> {
-    return this.carsService.update(+id, car);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateCarDto,
+  ): Promise<Car> {
+    return this.carsService.update(id, dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
-    return this.carsService.remove(+id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.carsService.remove(id);
   }
 }

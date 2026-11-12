@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Car, Gauge, Calendar, Loader2 } from 'lucide-react';
+import { Car, Gauge, Calendar, Loader2, Fuel, Users } from 'lucide-react';
 import { fetchCars } from '../services/api';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const Fleet = () => {
   const [cars, setCars] = useState([]);
@@ -14,7 +16,7 @@ const Fleet = () => {
       try {
         setLoading(true);
         const data = await fetchCars();
-        setCars(data); // ✅ Affiche TOUTES les voitures
+        setCars(data);
       } catch (err) {
         console.error('Erreur chargement flotte', err);
         setError('Impossible de charger la flotte. Veuillez réessayer plus tard.');
@@ -24,6 +26,14 @@ const Fleet = () => {
     };
     loadCars();
   }, []);
+
+  const getCarImageUrl = (car) => {
+    if (car.photos && car.photos.length > 0) {
+      const primary = car.photos.find((p) => p.is_primary) || car.photos[0];
+      return `${API_URL}${primary.file_path}`;
+    }
+    return car.image_url || null;
+  };
 
   return (
     <section id="fleet" className="py-24 bg-dark">
@@ -67,67 +77,93 @@ const Fleet = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
-              {cars.map((car, index) => (
-                <motion.div
-                  key={car.id}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="group relative bg-card border border-border rounded-xl overflow-hidden transition-all duration-500 hover:border-gold/40 hover:shadow-2xl hover:shadow-gold/5"
-                >
-                  {index === 0 && (
-                    <div className="absolute top-4 left-4 z-10 bg-gold text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                      Le plus demandé
-                    </div>
-                  )}
+              {cars.map((car, index) => {
+                const imageUrl = getCarImageUrl(car);
+                const photoCount = car.photos ? car.photos.length : car.image_url ? 1 : 0;
 
-                  <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-900 to-black">
-                    {car.image_url ? (
-                      <img
-                        src={car.image_url}
-                        alt={car.name}
-                        className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
-                      />
-                    ) : (
-                      <Car
-                        size={90}
-                        className="absolute inset-0 m-auto text-gold/40 group-hover:text-gold/60 transition"
-                      />
+                return (
+                  <motion.div
+                    key={car.id}
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    className="group relative bg-card border border-border rounded-xl overflow-hidden transition-all duration-500 hover:border-gold/40 hover:shadow-2xl hover:shadow-gold/5 flex flex-col justify-between"
+                  >
+                    {index === 0 && (
+                      <div className="absolute top-4 left-4 z-10 bg-gold text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        Le plus demandé
+                      </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                  </div>
 
-                  <div className="p-6 lg:p-8">
-                    <h3 className="text-2xl lg:text-3xl font-light mb-2 tracking-wide">
-                      {car.brand} <span className="font-medium text-gold">{car.model}</span>
-                    </h3>
-                    <p className="text-gray-400 text-sm mb-6 uppercase tracking-wider">
-                      {car.year} • {car.transmission}
-                    </p>
+                    {photoCount > 1 && (
+                      <div className="absolute top-4 right-4 z-10 bg-black/70 backdrop-blur-sm text-white text-[11px] font-medium px-2.5 py-1 rounded-full border border-white/10">
+                        {photoCount} photos
+                      </div>
+                    )}
 
-                    <div className="flex items-center justify-between mb-8 text-sm">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center">
-                          <Gauge size={18} className="text-gold mr-2" />
-                          <span className="font-light">{car.horsepower} ch</span>
+                    <div>
+                      <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-900 to-black">
+                        {imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={car.name}
+                            className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <Car
+                            size={90}
+                            className="absolute inset-0 m-auto text-gold/40 group-hover:text-gold/60 transition"
+                          />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                      </div>
+
+                      <div className="p-6 lg:p-8">
+                        <h3 className="text-2xl font-light mb-1.5 tracking-wide text-white">
+                          {car.brand}{' '}
+                          <span className="font-medium text-gold">{car.model}</span>
+                        </h3>
+                        <p className="text-gray-400 text-xs mb-6 uppercase tracking-wider">
+                          {car.year} • {car.transmission} • {car.fuel_type || 'Essence'}
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-3 mb-6 text-sm text-gray-300">
+                          <div className="flex items-center">
+                            <Gauge size={16} className="text-gold mr-2 flex-shrink-0" />
+                            <span className="font-light text-xs">{car.horsepower} ch</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Users size={16} className="text-gold mr-2 flex-shrink-0" />
+                            <span className="font-light text-xs">{car.seats || 5} places</span>
+                          </div>
                         </div>
-                        <div className="flex items-center">
-                          <Calendar size={18} className="text-gold mr-2" />
-                          <span className="font-light">{car.price_per_day.toLocaleString()} FCFA/j</span>
+
+                        <div className="mb-6 pt-4 border-t border-border flex items-baseline justify-between">
+                          <span className="text-xs uppercase tracking-wider text-gray-400">
+                            Tarif journalier
+                          </span>
+                          <span className="text-xl font-light text-white">
+                            <span className="text-gold font-semibold">
+                              {Number(car.price_per_day).toLocaleString()}
+                            </span>{' '}
+                            <span className="text-xs text-gray-400">FCFA/j</span>
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    <Link
-                      to={`/booking/${car.id}`}
-                      className="block w-full text-center border border-gold text-gold hover:bg-gold hover:text-black font-medium py-3 rounded-md transition duration-300 uppercase tracking-wider text-sm"
-                    >
-                      Réserver ce véhicule
-                    </Link>
-                  </div>
-                </motion.div>
-              ))}
+                    <div className="px-6 pb-6 lg:px-8 lg:pb-8">
+                      <Link
+                        to={`/booking/${car.id}`}
+                        className="block w-full text-center border border-gold text-gold hover:bg-gold hover:text-black font-medium py-3 rounded-md transition duration-300 uppercase tracking-wider text-xs"
+                      >
+                        Réserver ce véhicule
+                      </Link>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
 
             <div className="text-center mt-16">
