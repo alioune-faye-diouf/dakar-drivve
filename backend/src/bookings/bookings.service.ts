@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Booking, BookingStatus } from './booking.entity';
 import { CarsService } from '../cars/cars.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class BookingsService {
@@ -10,6 +11,7 @@ export class BookingsService {
     @InjectRepository(Booking)
     private bookingsRepository: Repository<Booking>,
     private carsService: CarsService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(bookingData: Partial<Booking>): Promise<Booking> {
@@ -36,7 +38,16 @@ export class BookingsService {
       status: BookingStatus.PENDING,
     });
 
-    return this.bookingsRepository.save(booking);
+    const savedBooking = await this.bookingsRepository.save(booking);
+    
+    // On recharge avec les relations pour avoir les infos de la voiture dans le mail
+    const fullBooking = await this.findOne(savedBooking.id);
+    if (fullBooking) {
+      // Notification simulée de nouvelle demande
+      this.notificationsService.sendBookingNotification(fullBooking);
+    }
+
+    return savedBooking;
   }
 
   findAll(): Promise<Booking[]> {

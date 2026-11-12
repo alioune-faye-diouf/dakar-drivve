@@ -5,6 +5,7 @@ import { Payment, PaymentStatus } from './payment.entity';
 import { PaytechService } from './paytech.service';
 import { BookingsService } from '../bookings/bookings.service';
 import { BookingStatus } from '../bookings/booking.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PaymentsService {
@@ -15,6 +16,7 @@ export class PaymentsService {
     private paymentsRepository: Repository<Payment>,
     private paytechService: PaytechService,
     private bookingsService: BookingsService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async createPayment(
@@ -96,10 +98,13 @@ export class PaymentsService {
       payment.status = PaymentStatus.SUCCESS;
       payment.transaction_id = transaction_id;
 
-      await this.bookingsService.updateStatus(
+      const updatedBooking = await this.bookingsService.updateStatus(
         payment.bookingId,
         BookingStatus.CONFIRMED,
       );
+
+      // Envoyer la notification à l'admin
+      await this.notificationsService.sendBookingNotification(updatedBooking);
     } else {
       payment.status = PaymentStatus.FAILED;
     }

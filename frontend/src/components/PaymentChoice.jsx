@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { initiatePayment } from '../services/api';
 import toast from 'react-hot-toast';
-import { Smartphone, CreditCard } from 'lucide-react';
 
 const PaymentChoice = ({ bookingData }) => {
   const [loading, setLoading] = useState(false);
@@ -33,10 +32,12 @@ const PaymentChoice = ({ bookingData }) => {
         <button
           onClick={() => handlePayment('wave')}
           disabled={loading}
-          className="w-full flex items-center justify-between p-4 rounded-lg border border-[#1E3A8A] bg-[#1E3A8A]/10 hover:bg-[#1E3A8A]/20 transition"
+          className="w-full flex items-center justify-between p-4 rounded-lg border border-[#1E3A8A] bg-[#1E3A8A]/10 hover:bg-[#1E3A8A]/20 transition group"
         >
-          <div className="flex items-center space-x-3">
-            <Smartphone className="text-[#1E3A8A]" size={28} />
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-white rounded-md p-1 flex items-center justify-center overflow-hidden">
+              <img src="/wave.png" alt="Wave" className="w-full h-full object-contain" />
+            </div>
             <span className="font-medium text-lg">Wave</span>
           </div>
           <span className="text-sm text-gray-400">Paiement mobile</span>
@@ -45,10 +46,12 @@ const PaymentChoice = ({ bookingData }) => {
         <button
           onClick={() => handlePayment('orange_money')}
           disabled={loading}
-          className="w-full flex items-center justify-between p-4 rounded-lg border border-[#F60] bg-[#F60]/10 hover:bg-[#F60]/20 transition"
+          className="w-full flex items-center justify-between p-4 rounded-lg border border-[#F60] bg-[#F60]/10 hover:bg-[#F60]/20 transition group"
         >
-          <div className="flex items-center space-x-3">
-            <CreditCard className="text-[#F60]" size={28} />
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-white rounded-md p-1 flex items-center justify-center overflow-hidden">
+              <img src="/orange-money.png" alt="Orange Money" className="w-full h-full object-contain" />
+            </div>
             <span className="font-medium text-lg">Orange Money</span>
           </div>
           <span className="text-sm text-gray-400">Paiement mobile</span>

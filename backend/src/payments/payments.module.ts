@@ -6,12 +6,14 @@ import { PaymentsController } from './payments.controller';
 import { PaytechService } from './paytech.service';
 import { Payment } from './payment.entity';
 import { BookingsModule } from '../bookings/bookings.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Payment]),
     HttpModule,
     BookingsModule,
+    NotificationsModule,
   ],
   providers: [PaymentsService, PaytechService],
   controllers: [PaymentsController],

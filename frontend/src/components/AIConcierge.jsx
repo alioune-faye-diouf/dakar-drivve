@@ -12,7 +12,7 @@ const AIConcierge = () => {
     {
       role: 'assistant',
       content:
-        "Bonjour, je suis Baye, votre concierge DAKAR DRIVE. Comment puis-je vous aider aujourd'hui ?",
+        "Bonjour, je suis Junior, votre concierge DAKAR DRIVE. Comment puis-je vous aider aujourd'hui ?",
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,7 +68,7 @@ const AIConcierge = () => {
                   <Sparkles className="text-gold" size={18} />
                 </div>
                 <div>
-                  <h3 className="font-medium text-white">Baye, votre concierge</h3>
+                  <h3 className="font-medium text-white">Junior, votre concierge</h3>
                   <p className="text-xs text-gray-400">Disponible 24h/24</p>
                 </div>
               </div>

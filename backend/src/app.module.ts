@@ -6,6 +6,7 @@ import { BookingsModule } from './bookings/bookings.module';
 import { PaymentsModule } from './payments/payments.module';
 import { AiModule } from './ai/ai.module';
 import { AuthModule } from './auth/auth.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { Car } from './cars/car.entity';
 import { Booking } from './bookings/booking.entity';
 import { Payment } from './payments/payment.entity';
@@ -33,6 +34,7 @@ import { Admin } from './auth/admin.entity';
     PaymentsModule,
     AiModule,
     AuthModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}
